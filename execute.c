@@ -13,6 +13,7 @@ void execute_command(char *command, char *argv0, int cmd_number)
 	pid_t pid;
 	int status;
 	char **args;
+	char *full_path = NULL;
 
 	if (command == NULL || strlen(command) == 0)
 		return;
@@ -38,12 +39,28 @@ void execute_command(char *command, char *argv0, int cmd_number)
 		exit(0);
 	}
 
-	/* Check if command is executable */
-	if (!is_executable(args[0]))
+	/* Find command - check if it's a path or search in PATH */
+	if (strchr(args[0], '/') != NULL)
 	{
-		print_error(argv0, cmd_number, args[0]);
-		free_array(args);
-		return;
+		/* Command contains '/', treat as path */
+		if (!is_executable(args[0]))
+		{
+			print_error(argv0, cmd_number, args[0]);
+			free_array(args);
+			return;
+		}
+		full_path = args[0];
+	}
+	else
+	{
+		/* Search in PATH */
+		full_path = find_command_in_path(args[0]);
+		if (full_path == NULL)
+		{
+			print_error(argv0, cmd_number, args[0]);
+			free_array(args);
+			return;
+		}
 	}
 
 	pid = fork();
@@ -51,6 +68,8 @@ void execute_command(char *command, char *argv0, int cmd_number)
 	if (pid == -1)
 	{
 		perror("fork");
+		if (full_path != args[0])
+			free(full_path);
 		free_array(args);
 		return;
 	}
@@ -58,9 +77,11 @@ void execute_command(char *command, char *argv0, int cmd_number)
 	if (pid == 0)
 	{
 		/* Child process */
-		if (execve(args[0], args, environ) == -1)
+		if (execve(full_path, args, environ) == -1)
 		{
 			perror(argv0);
+			if (full_path != args[0])
+				free(full_path);
 			free_array(args);
 			exit(1);
 		}
@@ -69,6 +90,8 @@ void execute_command(char *command, char *argv0, int cmd_number)
 	{
 		/* Parent process */
 		wait(&status);
+		if (full_path != args[0])
+			free(full_path);
 		free_array(args);
 	}
 }

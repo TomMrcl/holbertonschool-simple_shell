@@ -82,3 +82,73 @@ char *trim_whitespace(char *str)
 
 	return (str);
 }
+
+/**
+ * parse_command - Parses a command string into arguments
+ * @command: Command string to parse
+ *
+ * Return: Array of argument strings, NULL on failure
+ */
+char **parse_command(char *command)
+{
+	char **args = NULL;
+	char *token, *cmd_copy;
+	int i = 0, count = 0;
+
+	if (command == NULL)
+		return (NULL);
+
+	/* Count tokens first */
+	cmd_copy = strdup(command);
+	if (cmd_copy == NULL)
+		return (NULL);
+
+	token = strtok(cmd_copy, " \t\n");
+	while (token != NULL)
+	{
+		count++;
+		token = strtok(NULL, " \t\n");
+	}
+	free(cmd_copy);
+
+	/* Allocate array */
+	args = malloc(sizeof(char *) * (count + 1));
+	if (args == NULL)
+		return (NULL);
+
+	/* Fill array */
+	token = strtok(command, " \t\n");
+	while (token != NULL)
+	{
+		args[i] = strdup(token);
+		if (args[i] == NULL)
+		{
+			free_array(args);
+			return (NULL);
+		}
+		i++;
+		token = strtok(NULL, " \t\n");
+	}
+	args[i] = NULL;
+
+	return (args);
+}
+
+/**
+ * free_array - Frees an array of strings
+ * @array: Array to free
+ *
+ * Return: void
+ */
+void free_array(char **array)
+{
+	int i;
+
+	if (array == NULL)
+		return;
+
+	for (i = 0; array[i] != NULL; i++)
+		free(array[i]);
+
+	free(array);
+}

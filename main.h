@@ -20,5 +20,7 @@ int is_executable(char *path);
 char *trim_whitespace(char *str);
 char **parse_command(char *command);
 void free_array(char **array);
+char *find_command_in_path(char *command);
+char *get_path_env(void);
 
 #endif /* MAIN_H */

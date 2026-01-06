@@ -14,17 +14,15 @@ void execute_command(char *command, char *argv0, int cmd_number)
 	int status;
 	char **args;
 	char *full_path = NULL;
+	int should_free_path = 0;
 
 	if (command == NULL || strlen(command) == 0)
 		return;
 
-	/* Trim whitespace */
 	command = trim_whitespace(command);
-
 	if (strlen(command) == 0)
 		return;
 
-	/* Parse command into arguments */
 	args = parse_command(command);
 	if (args == NULL || args[0] == NULL)
 	{
@@ -32,43 +30,42 @@ void execute_command(char *command, char *argv0, int cmd_number)
 		return;
 	}
 
-	/* Handle built-in exit command */
 	if (strcmp(args[0], "exit") == 0)
 	{
 		free_array(args);
 		exit(0);
 	}
 
-	/* Find command - check if it's a path or search in PATH */
+	/* Find command */
 	if (strchr(args[0], '/') != NULL)
 	{
 		/* Command contains '/', treat as path */
-		if (!is_executable(args[0]))
-		{
-			print_error(argv0, cmd_number, args[0]);
-			free_array(args);
-			return;
-		}
 		full_path = args[0];
 	}
 	else
 	{
 		/* Search in PATH */
 		full_path = find_command_in_path(args[0]);
-		if (full_path == NULL)
-		{
-			print_error(argv0, cmd_number, args[0]);
-			free_array(args);
-			return;
-		}
+		should_free_path = 1;
 	}
 
+	/* Check if command exists and is executable */
+	if (full_path == NULL || !is_executable(full_path))
+	{
+		print_error(argv0, cmd_number, args[0]);
+		if (should_free_path && full_path != NULL)
+			free(full_path);
+		free_array(args);
+		return;
+	}
+
+	/* Now we can fork */
 	pid = fork();
 
 	if (pid == -1)
 	{
 		perror("fork");
-		if (full_path != args[0])
+		if (should_free_path)
 			free(full_path);
 		free_array(args);
 		return;
@@ -80,7 +77,7 @@ void execute_command(char *command, char *argv0, int cmd_number)
 		if (execve(full_path, args, environ) == -1)
 		{
 			perror(argv0);
-			if (full_path != args[0])
+			if (should_free_path)
 				free(full_path);
 			free_array(args);
 			exit(1);
@@ -90,7 +87,7 @@ void execute_command(char *command, char *argv0, int cmd_number)
 	{
 		/* Parent process */
 		wait(&status);
-		if (full_path != args[0])
+		if (should_free_path)
 			free(full_path);
 		free_array(args);
 	}

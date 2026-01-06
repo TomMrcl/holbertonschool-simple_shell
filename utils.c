@@ -174,6 +174,9 @@ char *get_path_env(void)
 {
 	int i;
 
+	if (environ == NULL)
+		return (NULL);
+
 	for (i = 0; environ[i] != NULL; i++)
 	{
 		if (strncmp(environ[i], "PATH=", 5) == 0)
@@ -198,7 +201,7 @@ char *find_command_in_path(char *command)
 		return (NULL);
 
 	path_env = get_path_env();
-	if (path_env == NULL)
+	if (path_env == NULL || strlen(path_env) == 0)
 		return (NULL);
 
 	path_copy = strdup(path_env);
@@ -208,6 +211,13 @@ char *find_command_in_path(char *command)
 	dir = strtok(path_copy, ":");
 	while (dir != NULL)
 	{
+		/* Skip empty directory entries */
+		if (strlen(dir) == 0)
+		{
+			dir = strtok(NULL, ":");
+			continue;
+		}
+
 		/* Build full path: dir + "/" + command */
 		len = strlen(dir) + strlen(command) + 2;
 		full_path = malloc(len);

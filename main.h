@@ -14,7 +14,7 @@ extern char **environ;
 /* Function prototypes */
 void display_prompt(void);
 char *read_command(void);
-void execute_command(char *command, char *argv0);
+void execute_command(char *command, char *argv0, int cmd_number);
 void print_error(char *program_name, int cmd_number, char *command);
 int is_executable(char *path);
 char *trim_whitespace(char *str);

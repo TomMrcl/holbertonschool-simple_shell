@@ -29,16 +29,13 @@ int main(int argc, char **argv)
 			break;
 		}
 
-		/* Trim whitespace from command */
-		command = trim_whitespace(command);
-
 		if (strlen(command) == 0)
 		{
 			free(command);
 			continue;
 		}
 
-		execute_command(command, argv[0]);
+		execute_command(command, argv[0], cmd_number);
 		free(command);
 		cmd_number++;
 	}

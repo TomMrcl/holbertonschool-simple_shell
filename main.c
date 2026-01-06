@@ -7,7 +7,6 @@
  *
  * Return: 0 on success
  */
-
 int main(int argc, char **argv)
 {
 	char *command = NULL;
@@ -29,6 +28,9 @@ int main(int argc, char **argv)
 				write(STDOUT_FILENO, "\n", 1);
 			break;
 		}
+
+		/* Trim whitespace from command */
+		command = trim_whitespace(command);
 
 		if (strlen(command) == 0)
 		{

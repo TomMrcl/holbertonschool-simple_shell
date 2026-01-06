@@ -17,5 +17,6 @@ char *read_command(void);
 void execute_command(char *command, char *argv0);
 void print_error(char *program_name, int cmd_number, char *command);
 int is_executable(char *path);
+char *trim_whitespace(char *str);
 
 #endif /* MAIN_H */

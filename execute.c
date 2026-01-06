@@ -1,47 +1,58 @@
 #include "main.h"
 
 /**
- * execute_command - Exécute une commande
- * @command: La commande à exécuter
- * @argv0: Nom du programme (pour les erreurs)
+ * execute_command - Executes a command
+ * @command: The command to execute
+ * @argv0: Program name for error messages
  *
- * Return: 0 en cas de succès, -1 en cas d'erreur
+ * Return: void
  */
- 
-int execute_command(char *command, char *argv0)
+void execute_command(char *command, char *argv0)
 {
 	pid_t pid;
 	int status;
 	char *args[2];
-	struct stat st;
-	(void)argv0;
+	static int cmd_number = 1;
 
-	if (stat(command, &st) != 0)
-		return (-1);
+	if (command == NULL || strlen(command) == 0)
+		return;
 
-	args[0] = command;
-	args[1] = NULL;
+	/* Handle built-in exit command */
+	if (strcmp(command, "exit") == 0)
+		exit(0);
+
+	/* Check if command is executable */
+	if (!is_executable(command))
+	{
+		print_error(argv0, cmd_number, command);
+		cmd_number++;
+		return;
+	}
 
 	pid = fork();
 
 	if (pid == -1)
 	{
 		perror("fork");
-		return (-1);
+		return;
 	}
 
 	if (pid == 0)
 	{
+		/* Child process */
+		args[0] = command;
+		args[1] = NULL;
+
 		if (execve(command, args, environ) == -1)
 		{
-			perror("execve");
-			exit(EXIT_FAILURE);
+			perror(argv0);
+			exit(1);
 		}
 	}
 	else
 	{
-		waitpid(pid, &status, 0);
+		/* Parent process */
+		wait(&status);
+		cmd_number++;
 	}
-
-	return (0);
 }

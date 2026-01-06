@@ -92,37 +92,48 @@ char *trim_whitespace(char *str)
 char **parse_command(char *command)
 {
 	char **args = NULL;
-	char *token, *cmd_copy;
+	char *token, *cmd_copy1, *cmd_copy2;
 	int i = 0, count = 0;
 
 	if (command == NULL)
 		return (NULL);
 
 	/* Count tokens first */
-	cmd_copy = strdup(command);
-	if (cmd_copy == NULL)
+	cmd_copy1 = strdup(command);
+	if (cmd_copy1 == NULL)
 		return (NULL);
 
-	token = strtok(cmd_copy, " \t\n");
+	token = strtok(cmd_copy1, " \t\n");
 	while (token != NULL)
 	{
 		count++;
 		token = strtok(NULL, " \t\n");
 	}
-	free(cmd_copy);
+	free(cmd_copy1);
+
+	if (count == 0)
+		return (NULL);
 
 	/* Allocate array */
 	args = malloc(sizeof(char *) * (count + 1));
 	if (args == NULL)
 		return (NULL);
 
-	/* Fill array */
-	token = strtok(command, " \t\n");
+	/* Fill array with second copy */
+	cmd_copy2 = strdup(command);
+	if (cmd_copy2 == NULL)
+	{
+		free(args);
+		return (NULL);
+	}
+
+	token = strtok(cmd_copy2, " \t\n");
 	while (token != NULL)
 	{
 		args[i] = strdup(token);
 		if (args[i] == NULL)
 		{
+			free(cmd_copy2);
 			free_array(args);
 			return (NULL);
 		}
@@ -130,6 +141,7 @@ char **parse_command(char *command)
 		token = strtok(NULL, " \t\n");
 	}
 	args[i] = NULL;
+	free(cmd_copy2);
 
 	return (args);
 }

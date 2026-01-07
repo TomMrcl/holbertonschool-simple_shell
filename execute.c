@@ -1,7 +1,7 @@
 #include "main.h"
 
 void execute_command(char *command, char *argv0, int cmd_number,
-		     char **envp, int *last_status)
+		     char **envp, int *last_status, int *should_exit)
 {
 	pid_t pid;
 	int status;

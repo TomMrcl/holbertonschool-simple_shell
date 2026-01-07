@@ -1,0 +1,101 @@
+.TH SIMPLE_SHELL 1 "Simple Shell" "Holberton School" "User Commands"
+.SH NAME
+simple_shell \- minimalist UNIX command line interpreter
+
+.SH SYNOPSIS
+.B simple_shell
+
+.SH DESCRIPTION
+.B simple_shell
+is a basic UNIX command line interpreter written in C.
+It executes commands read from standard input and behaves similarly
+to
+.B /bin/sh
+for simple use cases.
+
+The shell supports both interactive and non-interactive modes.
+It executes commands using absolute paths, relative paths,
+or by searching in the PATH environment variable.
+
+.SH MODES
+.TP
+.B Interactive mode
+When launched without input redirection, the shell displays a prompt
+and waits for user commands.
+.PP
+Example:
+.RS
+./simple_shell
+.RE
+
+.TP
+.B Non-interactive mode
+When input is provided through a pipe or file, the shell reads commands
+from standard input and executes them without displaying a prompt.
+.PP
+Example:
+.RS
+echo "ls -l" | ./simple_shell
+.RE
+
+.SH BUILT-IN COMMANDS
+.TP
+.B exit
+Exit the shell.
+
+.TP
+.B env
+Print the current environment variables.
+
+.SH PATH RESOLUTION
+If a command does not contain a slash (\fB/\fR), the shell searches for
+the executable in the directories listed in the PATH environment variable.
+
+If PATH is empty or not set, only absolute and relative paths can be executed.
+
+.SH ERROR HANDLING
+If a command cannot be found or executed, an error message similar to
+.B /bin/sh
+is displayed.
+
+The shell does not call
+.B fork
+when a command does not exist.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Successful execution.
+
+.TP
+.B 127
+Command not found.
+
+.SH ENVIRONMENT
+The shell uses the following environment variables:
+.TP
+.B PATH
+List of directories used to search for executable commands.
+
+.SH EXAMPLES
+Execute a command:
+.RS
+ls -l /tmp
+.RE
+
+Print environment variables:
+.RS
+env
+.RE
+
+Exit the shell:
+.RS
+exit
+.RE
+
+.SH AUTHOR
+Written by Tom Marchal and Esteban Callejo.
+
+.SH SEE ALSO
+.BR sh (1),
+.BR bash (1)

@@ -1,13 +1,6 @@
 #include "main.h"
 
-/**
- * main - Entry point for the simple shell
- * @argc: Argument count
- * @argv: Argument vector
- *
- * Return: 0 on success
- */
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
 	char *command = NULL;
 	int cmd_number = 1;
@@ -21,7 +14,6 @@ int main(int argc, char **argv)
 			display_prompt();
 
 		command = read_command();
-
 		if (command == NULL)
 		{
 			if (interactive)
@@ -32,10 +24,11 @@ int main(int argc, char **argv)
 		if (strlen(command) == 0)
 		{
 			free(command);
+			cmd_number++;
 			continue;
 		}
 
-		execute_command(command, argv[0], cmd_number);
+		execute_command(command, argv[0], cmd_number, envp);
 		free(command);
 		cmd_number++;
 	}

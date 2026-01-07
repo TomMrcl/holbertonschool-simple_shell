@@ -29,5 +29,6 @@ void free_array(char **array);
 /* env / path */
 char *get_env_value(char **envp, const char *name);
 char *find_command_in_path(char *command, char **envp);
+void print_env(char **envp);
 
 #endif

@@ -30,6 +30,14 @@ void execute_command(char *command, char *argv0, int cmd_number,
 		free_array(args);
 		return;
 	}
+		/* Built-in: env */
+	if (strcmp(args[0], "env") == 0)
+	{
+		print_env(envp);
+		*last_status = 0;
+		free_array(args);
+		return;
+	}
 
 	/* Resolve path */
 	if (strchr(args[0], '/') != NULL)

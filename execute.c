@@ -23,6 +23,13 @@ void execute_command(char *command, char *argv0, int cmd_number,
 		return;
 	}
 
+	/* Built-in: exit */
+	if (strcmp(args[0], "exit") == 0)
+	{
+		free_array(args);
+		exit(*last_status);
+	}
+
 	/* Resolve path */
 	if (strchr(args[0], '/') != NULL)
 	{

@@ -175,37 +175,6 @@ The shell implements robust error handling:
 
 ---
 
-## 🧪 Testing
-
-### Memory Leak Check
-
-Use Valgrind to ensure there are no memory leaks:
-
-```bash
-valgrind --leak-check=full --show-leak-kinds=all ./hsh
-```
-
-### Test Cases
-
-```bash
-# Test 1: Simple command
-echo "ls" | ./hsh
-
-# Test 2: Command with arguments
-echo "ls -la /tmp" | ./hsh
-
-# Test 3: Multiple commands
-echo -e "pwd\nls\nenv" | ./hsh
-
-# Test 4: Non-existent command
-echo "nonexistent_command" | ./hsh
-
-# Test 5: Built-in commands
-echo -e "env\nexit" | ./hsh
-```
-
----
-
 ## 💡 Examples
 
 ### Example 1: Basic Commands
@@ -244,13 +213,6 @@ $
 
 ---
 
-## 👥 Authors
-
-- **Your Name** - [GitHub Profile](https://github.com/yourusername)
-- **Collaborator Name** - [GitHub Profile](https://github.com/collaborator)
-
----
-
 ## 📄 License
 
 This project is part of the Holberton School curriculum.
@@ -262,15 +224,6 @@ This project is part of the Holberton School curriculum.
 - Holberton School for the project guidelines
 - All peers and mentors who provided support
 - The `/bin/sh` shell for inspiration
-
----
-
-## 📚 Resources
-
-- [Unix Shell - Wikipedia](https://en.wikipedia.org/wiki/Unix_shell)
-- [execve man page](https://man7.org/linux/man-pages/man2/execve.2.html)
-- [fork man page](https://man7.org/linux/man-pages/man2/fork.2.html)
-- [Betty Style Guide](https://github.com/holbertonschool/Betty)
 
 ---
 

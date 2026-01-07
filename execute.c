@@ -9,7 +9,7 @@ void execute_command(char *command, char *argv0, int cmd_number,
 	char *full_path = NULL;
 	int free_path = 0;
 
-	if (command == NULL || last_status == NULL)
+	if (command == NULL || last_status == NULL || should_exit == NULL)
 		return;
 
 	command = trim_whitespace(command);
@@ -23,11 +23,12 @@ void execute_command(char *command, char *argv0, int cmd_number,
 		return;
 	}
 
-	/* Built-in: exit */
+		/* Built-in: exit */
 	if (strcmp(args[0], "exit") == 0)
 	{
+		*should_exit = 1;
 		free_array(args);
-		exit(*last_status);
+		return;
 	}
 
 	/* Resolve path */

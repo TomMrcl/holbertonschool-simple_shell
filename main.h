@@ -15,7 +15,7 @@ char *read_command(void);
 
 /* execute */
 void execute_command(char *command, char *argv0, int cmd_number,
-		     char **envp, int *last_status);
+		     char **envp, int *last_status, int *should_exit);
 
 /* errors / exec utils */
 int is_executable(char *path);

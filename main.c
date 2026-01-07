@@ -6,6 +6,7 @@ int main(int argc, char **argv, char **envp)
 	int cmd_number = 1;
 	int interactive = isatty(STDIN_FILENO);
 	int last_status = 0;
+	int should_exit = 0;
 
 	(void)argc;
 
@@ -29,9 +30,14 @@ int main(int argc, char **argv, char **envp)
 			continue;
 		}
 
-		execute_command(command, argv[0], cmd_number, envp, &last_status);
+		execute_command(command, argv[0], cmd_number, envp,
+				&last_status, &should_exit);
 
 		free(command);
+
+		if (should_exit)
+			break;
+
 		cmd_number++;
 	}
 

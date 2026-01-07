@@ -5,6 +5,7 @@ int main(int argc, char **argv, char **envp)
 	char *command = NULL;
 	int cmd_number = 1;
 	int interactive = isatty(STDIN_FILENO);
+	int last_status = 0;
 
 	(void)argc;
 
@@ -28,10 +29,10 @@ int main(int argc, char **argv, char **envp)
 			continue;
 		}
 
-		execute_command(command, argv[0], cmd_number, envp);
+		execute_command(command, argv[0], cmd_number, envp, &last_status);
 		free(command);
 		cmd_number++;
 	}
 
-	return (0);
+	return (last_status);
 }

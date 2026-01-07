@@ -14,7 +14,8 @@ void display_prompt(void);
 char *read_command(void);
 
 /* execute */
-void execute_command(char *command, char *argv0, int cmd_number, char **envp);
+void execute_command(char *command, char *argv0, int cmd_number, char **envp,
+		     int *last_status);
 
 /* utils */
 int is_executable(char *path);

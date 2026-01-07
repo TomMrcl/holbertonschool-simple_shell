@@ -1,12 +1,5 @@
 #include "main.h"
 
-/**
- * get_env_value - Get value of an env var from envp
- * @envp: environment array
- * @name: variable name (ex: "PATH")
- *
- * Return: pointer to value inside envp string, or NULL
- */
 char *get_env_value(char **envp, const char *name)
 {
 	size_t nlen;

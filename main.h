@@ -14,21 +14,20 @@ void display_prompt(void);
 char *read_command(void);
 
 /* execute */
-void execute_command(char *command, char *argv0, int cmd_number, char **envp,
-		     int *last_status);
+void execute_command(char *command, char *argv0, int cmd_number,
+		     char **envp, int *last_status);
 
-/* utils */
+/* errors / exec utils */
 int is_executable(char *path);
 void print_error(char *program_name, int cmd_number, char *command);
-char *trim_whitespace(char *str);
 
+/* parsing / strings */
+char *trim_whitespace(char *str);
 char **parse_command(char *command);
 void free_array(char **array);
 
+/* env / path */
 char *get_env_value(char **envp, const char *name);
 char *find_command_in_path(char *command, char **envp);
 
-/* PATH utils */
-char *get_path_env(void);
-
-#endif /* MAIN_H */
+#endif

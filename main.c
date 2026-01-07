@@ -22,7 +22,7 @@ int main(int argc, char **argv, char **envp)
 			break;
 		}
 
-		if (strlen(command) == 0)
+		if (command[0] == '\0')
 		{
 			free(command);
 			cmd_number++;
@@ -30,6 +30,7 @@ int main(int argc, char **argv, char **envp)
 		}
 
 		execute_command(command, argv[0], cmd_number, envp, &last_status);
+
 		free(command);
 		cmd_number++;
 	}

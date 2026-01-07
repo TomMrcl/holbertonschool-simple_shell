@@ -1,26 +1,15 @@
 #include "main.h"
 
-/**
- * find_command_in_path - Search command in PATH from envp
- * @command: command name (no '/')
- * @envp: environment array
- *
- * Return: malloc'ed full path, or NULL
- */
 char *find_command_in_path(char *command, char **envp)
 {
 	char *path_env, *path_copy, *dir, *full_path;
 	size_t len;
 
-	if (command == NULL || envp == NULL)
+	if (command == NULL)
 		return (NULL);
 
 	path_env = get_env_value(envp, "PATH");
-	if (path_env == NULL)
-		return (NULL);
-
-	/* PATH can be empty string => no search */
-	if (path_env[0] == '\0')
+	if (path_env == NULL || path_env[0] == '\0')
 		return (NULL);
 
 	path_copy = strdup(path_env);
@@ -30,7 +19,7 @@ char *find_command_in_path(char *command, char **envp)
 	dir = strtok(path_copy, ":");
 	while (dir != NULL)
 	{
-		/* IMPORTANT: empty entry means current directory */
+		/* empty entry = current directory */
 		if (dir[0] == '\0')
 			dir = ".";
 

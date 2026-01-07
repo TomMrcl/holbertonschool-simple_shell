@@ -1,5 +1,14 @@
 #include "main.h"
 
+/**
+ * main - Entry point for the simple shell
+ * @argc: argument count
+ * @argv: argument vector
+ * @envp: environment variables
+ *
+ * Return: exit status of the last executed command
+ */
+
 int main(int argc, char **argv, char **envp)
 {
 	char *command = NULL;

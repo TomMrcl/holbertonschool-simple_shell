@@ -1,12 +1,126 @@
 #include "main.h"
 
-void execute_command(char *command, char *argv0, int cmd_number,
-		     char **envp, int *last_status, int *should_exit)
+/**
+ * handle_builtins - Handle built-in commands
+ * @args: tokenized command
+ * @envp: environment
+ * @last_status: pointer to last status
+ * @should_exit: pointer to exit flag
+ *
+ * Return: 1 if a builtin was handled, 0 otherwise
+ */
+static int handle_builtins(char **args, char **envp, int *last_status,
+			   int *should_exit)
+{
+	if (strcmp(args[0], "exit") == 0)
+	{
+		*should_exit = 1;
+		return (1);
+	}
+
+	if (strcmp(args[0], "env") == 0)
+	{
+		print_env(envp);
+		*last_status = 0;
+		return (1);
+	}
+
+	return (0);
+}
+
+/**
+ * resolve_command_path - Resolve command path (absolute/relative or PATH)
+ * @cmd: command name (args[0])
+ * @envp: environment
+ * @free_path: set to 1 if returned path must be freed
+ *
+ * Return: resolved path or NULL
+ */
+static char *resolve_command_path(char *cmd, char **envp, int *free_path)
+{
+	char *path;
+
+	*free_path = 0;
+
+	if (cmd == NULL)
+		return (NULL);
+
+	if (strchr(cmd, '/') != NULL)
+		return (cmd);
+
+	path = find_command_in_path(cmd, envp);
+	if (path != NULL)
+		*free_path = 1;
+
+	return (path);
+}
+
+/**
+ * run_fork_exec - Fork and exec a command
+ * @path: full path to command
+ * @args: arguments array
+ * @envp: environment
+ *
+ * Return: exit status
+ */
+static int run_fork_exec(char *path, char **args, char **envp)
 {
 	pid_t pid;
 	int status;
+
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		return (1);
+	}
+
+	if (pid == 0)
+	{
+		execve(path, args, envp);
+		exit(127);
+	}
+
+	wait(&status);
+
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+
+	return (1);
+}
+
+/**
+ * cleanup_exec - Free allocated resources after execution
+ * @args: arguments array
+ * @path: resolved path (maybe allocated)
+ * @free_path: whether path must be freed
+ *
+ * Return: void
+ */
+static void cleanup_exec(char **args, char *path, int free_path)
+{
+	if (free_path && path != NULL)
+		free(path);
+
+	free_array(args);
+}
+
+/**
+ * execute_command - Executes a command
+ * @command: raw command line
+ * @argv0: program name (for errors)
+ * @cmd_number: command counter
+ * @envp: environment
+ * @last_status: pointer to last status
+ * @should_exit: pointer to exit flag
+ *
+ * Return: void
+ */
+void execute_command(char *command, char *argv0, int cmd_number,
+		     char **envp, int *last_status, int *should_exit)
+{
 	char **args = NULL;
-	char *full_path = NULL;
+	char *path = NULL;
 	int free_path = 0;
 
 	if (command == NULL || last_status == NULL || should_exit == NULL)
@@ -23,74 +137,22 @@ void execute_command(char *command, char *argv0, int cmd_number,
 		return;
 	}
 
-		/* Built-in: exit */
-	if (strcmp(args[0], "exit") == 0)
+	if (handle_builtins(args, envp, last_status, should_exit))
 	{
-		*should_exit = 1;
-		free_array(args);
-		return;
-	}
-		/* Built-in: env */
-	if (strcmp(args[0], "env") == 0)
-	{
-		print_env(envp);
-		*last_status = 0;
 		free_array(args);
 		return;
 	}
 
-	/* Resolve path */
-	if (strchr(args[0], '/') != NULL)
-	{
-		full_path = args[0];
-	}
-	else
-	{
-		full_path = find_command_in_path(args[0], envp);
-		free_path = 1;
-	}
+	path = resolve_command_path(args[0], envp, &free_path);
 
-	/* If not found: NO FORK + status 127 */
-	if (full_path == NULL || !is_executable(full_path))
+	if (path == NULL || !is_executable(path))
 	{
 		print_error(argv0, cmd_number, args[0]);
 		*last_status = 127;
-
-		if (free_path && full_path != NULL)
-			free(full_path);
-		free_array(args);
+		cleanup_exec(args, path, free_path);
 		return;
 	}
 
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		*last_status = 1;
-		if (free_path)
-			free(full_path);
-		free_array(args);
-		return;
-	}
-
-	if (pid == 0)
-	{
-		execve(full_path, args, envp);
-		print_error(argv0, cmd_number, args[0]);
-		if (free_path)
-			free(full_path);
-		free_array(args);
-		exit(127);
-	}
-
-	wait(&status);
-
-	if (WIFEXITED(status))
-		*last_status = WEXITSTATUS(status);
-	else
-		*last_status = 1;
-
-	if (free_path)
-		free(full_path);
-	free_array(args);
+	*last_status = run_fork_exec(path, args, envp);
+	cleanup_exec(args, path, free_path);
 }

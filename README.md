@@ -18,9 +18,7 @@
 - [Built-in Commands](#-built-in-commands)
 - [Project Structure](#-project-structure)
 - [Error Handling](#%EF%B8%8F-error-handling)
-- [Testing](#-testing)
 - [Examples](#-examples)
-- [Authors](#-authors)
 
 ---
 

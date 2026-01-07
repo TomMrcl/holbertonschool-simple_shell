@@ -5,7 +5,8 @@ void execute_command(char *command, char *argv0, int cmd_number, char **envp)
 	pid_t pid;
 	int status;
 	char **args;
-	char *path;
+	char *full_path = NULL;
+	int free_path = 0;
 
 	if (command == NULL || strlen(command) == 0)
 		return;
@@ -21,21 +22,23 @@ void execute_command(char *command, char *argv0, int cmd_number, char **envp)
 		return;
 	}
 
-	/* 0.1: no builtins required - if you keep exit, ok, but not required */
-	if (strcmp(args[0], "exit") == 0)
+	/* Resolve command */
+	if (strchr(args[0], '/') != NULL)
 	{
-		free_array(args);
-		exit(0);
+		full_path = args[0];
+	}
+	else
+	{
+		full_path = find_command_in_path(args[0], envp);
+		free_path = 1;
 	}
 
-	/* 0.1: do NOT use PATH.
-	 * If user types "ls", execve("ls", ...) will fail -> print not found.
-	 */
-	path = args[0];
-
-	if (!is_executable(path))
+	/* If not found -> NO FORK */
+	if (full_path == NULL || !is_executable(full_path))
 	{
 		print_error(argv0, cmd_number, args[0]);
+		if (free_path && full_path != NULL)
+			free(full_path);
 		free_array(args);
 		return;
 	}
@@ -44,16 +47,19 @@ void execute_command(char *command, char *argv0, int cmd_number, char **envp)
 	if (pid == -1)
 	{
 		perror("fork");
+		if (free_path)
+			free(full_path);
 		free_array(args);
 		return;
 	}
 
 	if (pid == 0)
 	{
-		if (execve(path, args, envp) == -1)
+		if (execve(full_path, args, envp) == -1)
 		{
-			/* For 0.1, prefer the formatted error over perror */
 			print_error(argv0, cmd_number, args[0]);
+			if (free_path)
+				free(full_path);
 			free_array(args);
 			exit(127);
 		}
@@ -61,6 +67,8 @@ void execute_command(char *command, char *argv0, int cmd_number, char **envp)
 	else
 	{
 		wait(&status);
+		if (free_path)
+			free(full_path);
 		free_array(args);
 	}
 }

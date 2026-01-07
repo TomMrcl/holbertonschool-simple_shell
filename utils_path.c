@@ -1,44 +1,26 @@
 #include "main.h"
 
-extern char **environ;
-
 /**
- * get_path_env - Gets the PATH environment variable
+ * find_command_in_path - Search command in PATH from envp
+ * @command: command name (no '/')
+ * @envp: environment array
  *
- * Return: Pointer to PATH string, or NULL if not found
+ * Return: malloc'ed full path, or NULL
  */
-char *get_path_env(void)
-{
-	int i;
-
-	if (environ == NULL)
-		return (NULL);
-
-	for (i = 0; environ[i] != NULL; i++)
-	{
-		if (strncmp(environ[i], "PATH=", 5) == 0)
-			return (environ[i] + 5);
-	}
-
-	return (NULL);
-}
-
-/**
- * find_command_in_path - Searches for a command in PATH directories
- * @command: Command to find
- *
- * Return: Full path to command if found, NULL otherwise
- */
-char *find_command_in_path(char *command)
+char *find_command_in_path(char *command, char **envp)
 {
 	char *path_env, *path_copy, *dir, *full_path;
 	size_t len;
 
-	if (command == NULL)
+	if (command == NULL || envp == NULL)
 		return (NULL);
 
-	path_env = get_path_env();
-	if (path_env == NULL || strlen(path_env) == 0)
+	path_env = get_env_value(envp, "PATH");
+	if (path_env == NULL)
+		return (NULL);
+
+	/* PATH can be empty string => no search */
+	if (path_env[0] == '\0')
 		return (NULL);
 
 	path_copy = strdup(path_env);
@@ -48,11 +30,9 @@ char *find_command_in_path(char *command)
 	dir = strtok(path_copy, ":");
 	while (dir != NULL)
 	{
-		if (strlen(dir) == 0)
-		{
-			dir = strtok(NULL, ":");
-			continue;
-		}
+		/* IMPORTANT: empty entry means current directory */
+		if (dir[0] == '\0')
+			dir = ".";
 
 		len = strlen(dir) + strlen(command) + 2;
 		full_path = malloc(len);

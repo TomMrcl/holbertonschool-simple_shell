@@ -30,7 +30,8 @@ int main(int argc, char **argv, char **envp)
 			continue;
 		}
 
-		execute_command(command, argv[0], cmd_number, envp, &last_status, &should_exit);
+		execute_command(command, argv[0], cmd_number, envp, &last_status,
+			 &should_exit);
 		free(command);
 
 		if (should_exit)
